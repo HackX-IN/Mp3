@@ -103,20 +103,26 @@ const HomeScreen = () => {
       const downloadResult = await FileSystem.downloadAsync(mp3Url, fileUri);
 
       if (downloadResult.status === 200) {
-        const asset = await MediaLibrary.createAssetAsync(fileUri);
-        Keyboard.dismiss();
-        setLink("");
-        setYoutubeUrl("");
-
-        if (Platform.OS === "android") {
-          ToastAndroid.show(
-            "MP3 file downloaded and saved to media library!",
-            ToastAndroid.SHORT
-          );
+        const Permissions = await MediaLibrary.requestPermissionsAsync();
+        if (Permissions.granted === false) {
+          return;
         } else {
-          Alert.alert("MP3 file downloaded and saved to media library!");
+          const asset = await MediaLibrary.createAssetAsync(fileUri);
+          console.log(asset);
+          Keyboard.dismiss();
+          setLink("");
+          setYoutubeUrl("");
+
+          if (Platform.OS === "android") {
+            ToastAndroid.show(
+              "MP3 file downloaded and saved to media library!",
+              ToastAndroid.SHORT
+            );
+          } else {
+            Alert.alert("MP3 file downloaded and saved to media library!");
+          }
+          setLoading(false);
         }
-        setLoading(false);
       } else {
         if (Platform.OS === "android") {
           ToastAndroid.show("Failed to download MP3 file.", ToastAndroid.SHORT);
